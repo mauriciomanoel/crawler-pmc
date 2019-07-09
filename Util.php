@@ -2,6 +2,40 @@
 
 class Util {
 
+    public static function getURL($url) {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+        //CURLOPT_URL => "https://api.ncbi.nlm.nih.gov/lit/ctxp/v1/pmc/?format=ris&id=5677444",
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "GET",
+        CURLOPT_HTTPHEADER => array(
+            "Accept: */*",
+            "Cache-Control: no-cache",
+            "Connection: keep-alive",
+            "Host: api.ncbi.nlm.nih.gov",
+            "Postman-Token: 06911a14-33dc-4964-a48f-7035bf069b42,f33861d7-87cb-4efc-84b2-24dac3e8dc03",
+            "User-Agent: PostmanRuntime/7.15.0",
+            "accept-encoding: gzip, deflate",
+            "cache-control: no-cache"
+        ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+            return "cURL Error #:" . $err;
+        } 
+        return $response;        
+    }
     public static function loadURL($url, $cookie, $user_agent, $fields=array(), $parameters=array()) 
     {        
         $ch 		= curl_init($url);
@@ -17,19 +51,15 @@ class Util {
             curl_setopt( $ch, CURLOPT_POST, 1 );
             curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
         }
-
-        $header[0] = "Accept: text/xml,application/xml,application/xhtml+xml,";
-        $header[0] .= "text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
-        $header[] = "Cache-Control: max-age=0";
+        
+        $header[] = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
+        $header[] = "Cache-Control: no-cache";
         $header[] = "Connection: keep-alive";
+        $header[] = "Host: api.ncbi.nlm.nih.gov";
         $header[] = "Accept-Charset: UTF-8;q=0.7,*;q=0.7";
         $header[] = "Accept-Language: pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3";
         $header[] = "Upgrade-Insecure-Requests: 1";
-        $header[] = "Pragma: ";
-        // $header[] = "Cookie: " . $cookie;
-        if (!empty($parameters["host"])) {
-            $header[] = "Host: " . $parameters["host"];
-        }
+        $header[] = "accept-encoding: gzip, deflate";
 
         curl_setopt( $ch, CURLOPT_URL, $url);
         curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 0);
@@ -43,6 +73,7 @@ class Util {
         curl_setopt( $ch, CURLOPT_ENCODING, "gzip, deflate, br");
         curl_setopt( $ch, CURLOPT_USERAGENT, $user_agent);
         $output 	= curl_exec($ch);
+        var_dump($output); exit;
         curl_close( $ch );
         return $output;
     }
